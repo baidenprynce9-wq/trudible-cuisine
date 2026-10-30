@@ -914,8 +914,7 @@ export default function Home() {
         <div className="border-t border-white/10 py-6">
           <div className="container mx-auto flex flex-col items-center justify-between gap-3 text-center text-xs text-white/50 md:flex-row">
             <p>
-              © {new Date().getFullYear()} Trudible Cuisine. All
-              rights reserved.
+              © 2026 Trudible Cuisine. All rights reserved.
             </p>
 
             <p className="flex items-center gap-2">
