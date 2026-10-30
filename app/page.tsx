@@ -32,6 +32,7 @@ const ampesiImage = "/images/ampesi-hero.jpg";
 const avocadoAmpesiImage =
   "/images/ampesi-fish-wele-egg-avocado.png";
 const saladImage = "/images/vegetable-salad.jpg";
+const eatingAmpesi3D = "/images/eating-ampesi-3d.jpg";
 
 type Dish = {
   id: number;
@@ -491,7 +492,7 @@ export default function Home() {
               ))}
             </div>
 
-            {/* 3D Tilt Dish Container */}
+            {/* 3D Tilt Character Container */}
             <motion.div
               style={{
                 y: heroImageY,
@@ -517,69 +518,109 @@ export default function Home() {
                 type: "spring",
                 stiffness: 65,
               }}
-              className="relative z-10 w-full max-w-[530px]"
+              className="relative z-10 w-full max-w-[510px]"
             >
-              {/* Platter Frame with Specular Glare */}
-              <div
-                className="relative overflow-hidden rounded-[45%] border-[10px] border-white/20 shadow-[0_30px_70px_rgba(0,0,0,0.5)] transition-shadow duration-300 hover:shadow-[0_35px_80px_rgba(0,0,0,0.6)]"
-                style={{ transform: "translateZ(30px)" }}
-              >
-                <img
-                  src={ampesiImage}
-                  alt="Ampesi with fish and traditional stew"
-                  className="aspect-square w-full object-cover transition-transform duration-700 hover:scale-105"
-                />
-
-                {/* Dynamic Glare Reflection */}
-                <motion.div
-                  className="pointer-events-none absolute inset-0 mix-blend-overlay"
-                  style={{
-                    background: useTransform(
-                      [glareX, glareY],
-                      ([x, y]) =>
-                        `radial-gradient(circle at ${x}% ${y}%, rgba(255,255,255,0.45) 0%, transparent 60%)`
-                    ),
-                  }}
-                />
-              </div>
-
-              {/* Floating Avocado Garnish Badge with 3D Depth */}
+              {/* Floating Joy Speech Pill */}
               <motion.div
-                style={{ transform: "translateZ(65px)" }}
+                style={{ transform: "translateZ(95px)" }}
                 animate={{
                   y: [0, -6, 0],
-                  rotate: [0, 6, 0],
+                  scale: [1, 1.03, 1],
+                }}
+                transition={{
+                  duration: 3.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="absolute -top-5 left-5 z-30 flex items-center gap-2 rounded-full border border-white/40 bg-white/95 px-4 py-2 text-xs font-black text-[#8e1025] shadow-2xl backdrop-blur-md"
+              >
+                <span className="text-base">😋</span>
+                <span>Mmm... Pure Deliciousness!</span>
+              </motion.div>
+
+              {/* Animated Sparkle */}
+              <motion.div
+                animate={{
+                  scale: [0.9, 1.3, 0.9],
+                  opacity: [0.7, 1, 0.7],
+                  rotate: [0, 90, 180, 270, 360],
+                }}
+                transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                className="absolute -top-3 right-10 z-30 text-2xl drop-shadow"
+              >
+                ✨
+              </motion.div>
+
+              {/* 3D Character Card with gentle eating sway in motion */}
+              <motion.div
+                animate={{
+                  y: [0, -8, 0],
+                  rotate: [0, 1.2, -1.2, 0],
                 }}
                 transition={{
                   duration: 4.5,
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
-                className="absolute -right-3 top-12 flex h-20 w-20 items-center justify-center rounded-full bg-white text-4xl shadow-2xl md:-right-7"
+                className="relative overflow-hidden rounded-[38px] border-[8px] border-white/25 bg-[#8e1025] shadow-[0_35px_80px_rgba(0,0,0,0.55)]"
+                style={{ transform: "translateZ(35px)" }}
+              >
+                <img
+                  src={eatingAmpesi3D}
+                  alt="Happy person enjoying authentic Ghanaian Ampesi with plantain and stew"
+                  className="aspect-square w-full object-cover transition-transform duration-700 hover:scale-105"
+                />
+
+                {/* Dynamic Specular Glare Reflection */}
+                <motion.div
+                  className="pointer-events-none absolute inset-0 mix-blend-overlay"
+                  style={{
+                    background: useTransform(
+                      [glareX, glareY],
+                      ([x, y]) =>
+                        `radial-gradient(circle at ${x}% ${y}%, rgba(255,255,255,0.4) 0%, transparent 65%)`
+                    ),
+                  }}
+                />
+              </motion.div>
+
+              {/* Floating Avocado Garnish Badge with 3D Depth */}
+              <motion.div
+                style={{ transform: "translateZ(75px)" }}
+                animate={{
+                  y: [0, -8, 0],
+                  rotate: [0, 8, 0],
+                }}
+                transition={{
+                  duration: 4.2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="absolute -right-3 top-16 flex h-20 w-20 items-center justify-center rounded-full bg-white text-4xl shadow-2xl md:-right-7"
               >
                 🥑
               </motion.div>
 
               {/* Floating Yam Garnish Badge with 3D Depth */}
               <motion.div
-                style={{ transform: "translateZ(75px)" }}
+                style={{ transform: "translateZ(85px)" }}
                 animate={{
-                  y: [0, 6, 0],
-                  rotate: [0, -6, 0],
+                  y: [0, 8, 0],
+                  rotate: [0, -8, 0],
                 }}
                 transition={{
-                  duration: 4.8,
+                  duration: 4.6,
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
-                className="absolute -bottom-3 left-0 flex h-20 w-20 items-center justify-center rounded-full bg-[#ffd66b] text-4xl shadow-2xl"
+                className="absolute -bottom-4 left-0 flex h-20 w-20 items-center justify-center rounded-full bg-[#ffd66b] text-4xl shadow-2xl"
               >
                 🍠
               </motion.div>
 
               {/* Deliciousness Card with 3D Depth */}
               <div
-                style={{ transform: "translateZ(85px)" }}
+                style={{ transform: "translateZ(95px)" }}
                 className="absolute -bottom-5 right-8 rounded-2xl bg-white px-5 py-3 text-[#242020] shadow-2xl transition-transform duration-300 hover:scale-105"
               >
                 <p className="text-xs font-bold uppercase tracking-wider text-[#b91c32]">
