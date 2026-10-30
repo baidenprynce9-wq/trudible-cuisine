@@ -15,6 +15,7 @@ import {
   Plus,
   Minus,
   X,
+  Menu,
   MapPin,
   Phone,
   Heart,
@@ -90,10 +91,18 @@ const dishes: Dish[] = [
 
 const foodEmojis = ["🥑", "🍠", "🍌", "🥬", "🍅", "🌶️"];
 
+const navigationLinks = [
+  { name: "Home", link: "#home" },
+  { name: "Our Story", link: "#story" },
+  { name: "Menu", link: "#menu" },
+  { name: "Contact", link: "#contact" },
+];
+
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { scrollY } = useScroll();
   const heroImageY = useTransform(scrollY, [0, 500], [0, 100]);
@@ -112,7 +121,8 @@ export default function Home() {
   );
 
   const cartTotal = cart.reduce(
-    (total, item) => total + item.dish.price * item.quantity,
+    (total, item) =>
+      total + item.dish.price * item.quantity,
     0
   );
 
@@ -153,6 +163,7 @@ export default function Home() {
   };
 
   const exploreMenu = () => {
+    setMobileMenuOpen(false);
     document
       .getElementById("menu")
       ?.scrollIntoView({ behavior: "smooth" });
@@ -186,49 +197,110 @@ export default function Home() {
   return (
     <main className="overflow-hidden bg-white text-[#242020]">
       {/* HEADER */}
-      <header className="fixed left-0 right-0 top-0 z-40 border-b border-white/10 bg-[#fffdfc]/95 backdrop-blur-xl">
-        <div className="container mx-auto flex h-[78px] items-center justify-between">
-          <a href="#home" className="flex items-center gap-2">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#b91c32] text-white">
+      <header className="fixed left-0 right-0 top-0 z-40 border-b border-gray-100 bg-[#fffdfc]/95 backdrop-blur-xl">
+        <div className="container relative mx-auto flex h-[78px] items-center justify-between gap-3">
+          {/* LOGO */}
+          <a
+            href="#home"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex min-w-0 items-center gap-2"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#b91c32] text-white sm:h-11 sm:w-11">
               <Utensils size={21} />
             </div>
 
             <div>
-              <h1 className="text-lg font-black leading-none tracking-tight">
+              <h1 className="whitespace-nowrap text-base font-black leading-none tracking-tight sm:text-lg">
                 Trudible
                 <span className="text-[#b91c32]"> Cuisine</span>
               </h1>
-              <p className="mt-1 text-[9px] font-semibold uppercase tracking-[3px] text-gray-500">
+
+              <p className="mt-1 whitespace-nowrap text-[8px] font-semibold uppercase tracking-[2px] text-gray-500 sm:text-[9px] sm:tracking-[3px]">
                 Our Kitchen To Your Heart
               </p>
             </div>
           </a>
 
+          {/* DESKTOP NAVIGATION */}
           <nav className="hidden items-center gap-8 text-sm font-semibold md:flex">
-            <a href="#home" className="transition hover:text-[#b91c32]">
-              Home
-            </a>
-            <a href="#story" className="transition hover:text-[#b91c32]">
-              Our Story
-            </a>
-            <a href="#menu" className="transition hover:text-[#b91c32]">
-              Menu
-            </a>
-            <a href="#contact" className="transition hover:text-[#b91c32]">
-              Contact
-            </a>
+            {navigationLinks.map((item) => (
+              <a
+                key={item.name}
+                href={item.link}
+                className="transition hover:text-[#b91c32]"
+              >
+                {item.name}
+              </a>
+            ))}
           </nav>
 
-          <button
-            onClick={() => setCartOpen(true)}
-            className="relative flex items-center gap-2 rounded-full bg-[#b91c32] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#941329]"
-          >
-            <ShoppingBag size={17} />
-            <span className="hidden sm:inline">My Order</span>
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1 text-xs font-black text-[#b91c32]">
-              {cartCount}
-            </span>
-          </button>
+          {/* RIGHT SIDE BUTTONS */}
+          <div className="flex shrink-0 items-center gap-2">
+            {/* MY ORDER */}
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setCartOpen(true);
+              }}
+              className="relative flex items-center gap-2 rounded-full bg-[#b91c32] px-3 py-3 text-xs font-bold text-white transition hover:bg-[#941329] sm:px-5 sm:text-sm"
+            >
+              <ShoppingBag size={17} />
+              <span className="hidden sm:inline">My Order</span>
+
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1 text-xs font-black text-[#b91c32]">
+                {cartCount}
+              </span>
+            </button>
+
+            {/* MOBILE MENU BUTTON */}
+            <button
+              onClick={() =>
+                setMobileMenuOpen((open) => !open)
+              }
+              className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#fff0f0] text-[#b91c32] transition hover:bg-[#ffe1e1] md:hidden"
+              aria-label={
+                mobileMenuOpen
+                  ? "Close navigation menu"
+                  : "Open navigation menu"
+              }
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? (
+                <X size={23} />
+              ) : (
+                <Menu size={23} />
+              )}
+            </button>
+          </div>
+
+          {/* MOBILE NAVIGATION */}
+          <AnimatePresence>
+            {mobileMenuOpen && (
+              <motion.nav
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25 }}
+                className="absolute left-0 right-0 top-full overflow-hidden border-t border-gray-100 bg-white shadow-xl md:hidden"
+              >
+                <div className="container mx-auto flex flex-col py-3">
+                  {navigationLinks.map((item, index) => (
+                    <motion.a
+                      key={item.name}
+                      href={item.link}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="border-b border-gray-100 px-3 py-4 text-sm font-bold transition hover:bg-[#fff7f5] hover:text-[#b91c32] last:border-0"
+                    >
+                      {item.name}
+                    </motion.a>
+                  ))}
+                </div>
+              </motion.nav>
+            )}
+          </AnimatePresence>
         </div>
       </header>
 
@@ -318,12 +390,14 @@ export default function Home() {
                   Good food vibes
                 </p>
               </div>
+
               <div>
                 <p className="text-2xl font-black">Fresh</p>
                 <p className="mt-1 text-xs text-white/65">
                   Food experience
                 </p>
               </div>
+
               <div>
                 <p className="text-2xl font-black">Ghana</p>
                 <p className="mt-1 text-xs text-white/65">
@@ -379,7 +453,10 @@ export default function Home() {
               </motion.div>
 
               <motion.div
-                animate={{ rotate: [0, 10, -10, 0], y: [0, -8, 0] }}
+                animate={{
+                  rotate: [0, 10, -10, 0],
+                  y: [0, -8, 0],
+                }}
                 transition={{ duration: 5, repeat: Infinity }}
                 className="absolute -right-3 top-12 flex h-20 w-20 items-center justify-center rounded-full bg-white text-4xl shadow-xl md:-right-7"
               >
@@ -387,7 +464,10 @@ export default function Home() {
               </motion.div>
 
               <motion.div
-                animate={{ rotate: [0, -12, 12, 0], y: [0, 8, 0] }}
+                animate={{
+                  rotate: [0, -12, 12, 0],
+                  y: [0, 8, 0],
+                }}
                 transition={{ duration: 4, repeat: Infinity }}
                 className="absolute -bottom-3 left-0 flex h-20 w-20 items-center justify-center rounded-full bg-[#ffd66b] text-4xl shadow-xl"
               >
@@ -398,7 +478,9 @@ export default function Home() {
                 <p className="text-xs font-bold uppercase tracking-wider text-[#b91c32]">
                   Deliciousness
                 </p>
-                <p className="text-lg font-black">In Every Bite!</p>
+                <p className="text-lg font-black">
+                  In Every Bite!
+                </p>
               </div>
             </motion.div>
           </div>
@@ -441,8 +523,11 @@ export default function Home() {
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#fff0f0] text-[#b91c32]">
                 <feature.icon size={23} />
               </div>
+
               <div>
-                <h3 className="text-sm font-black">{feature.title}</h3>
+                <h3 className="text-sm font-black">
+                  {feature.title}
+                </h3>
                 <p className="mt-1 text-xs text-gray-500">
                   {feature.text}
                 </p>
@@ -460,9 +545,12 @@ export default function Home() {
               <span className="text-xs font-black uppercase tracking-[3px] text-[#b91c32]">
                 What We're Serving
               </span>
+
               <h2 className="mt-3 text-4xl font-black tracking-tight md:text-5xl">
-                Explore Our <span className="text-[#b91c32]">Menu</span>
+                Explore Our{" "}
+                <span className="text-[#b91c32]">Menu</span>
               </h2>
+
               <p className="mt-4 max-w-lg leading-7 text-gray-500">
                 Good food does not have to be complicated. Find
                 something delicious and make it yours.
@@ -474,10 +562,11 @@ export default function Home() {
                 <button
                   key={category}
                   onClick={() => setActiveCategory(category)}
-                  className={`rounded-full px-6 py-3 text-sm font-bold transition ${activeCategory === category
+                  className={`rounded-full px-6 py-3 text-sm font-bold transition ${
+                    activeCategory === category
                       ? "bg-[#b91c32] text-white shadow-lg shadow-red-200"
                       : "border border-gray-200 bg-white text-gray-600 hover:border-[#b91c32] hover:text-[#b91c32]"
-                    }`}
+                  }`}
                 >
                   {category}
                 </button>
@@ -494,8 +583,16 @@ export default function Home() {
                 <motion.article
                   layout
                   key={dish.id}
-                  initial={{ opacity: 0, y: 25, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  initial={{
+                    opacity: 0,
+                    y: 25,
+                    scale: 0.95,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                  }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.35 }}
                   className="group overflow-hidden rounded-[26px] border border-gray-100 bg-white shadow-sm transition hover:-translate-y-2 hover:shadow-xl"
@@ -665,7 +762,9 @@ export default function Home() {
               className="absolute -bottom-7 -left-5 rounded-2xl bg-[#b91c32] p-6 text-white shadow-xl"
             >
               <Heart size={25} className="mb-2" />
-              <p className="text-xl font-black">Made With Love</p>
+              <p className="text-xl font-black">
+                Made With Love
+              </p>
               <p className="mt-1 text-xs text-white/75">
                 Our Kitchen To Your Heart
               </p>
@@ -675,10 +774,7 @@ export default function Home() {
       </section>
 
       {/* CONTACT */}
-      <section
-        id="contact"
-        className="bg-[#fff7f5] py-20"
-      >
+      <section id="contact" className="bg-[#fff7f5] py-20">
         <div className="container mx-auto">
           <div className="mx-auto max-w-2xl text-center">
             <span className="text-xs font-black uppercase tracking-[3px] text-[#b91c32]">
@@ -686,7 +782,8 @@ export default function Home() {
             </span>
 
             <h2 className="mt-4 text-4xl font-black md:text-5xl">
-              Ready To <span className="text-[#b91c32]">Order?</span>
+              Ready To{" "}
+              <span className="text-[#b91c32]">Order?</span>
             </h2>
 
             <p className="mt-5 leading-7 text-gray-500">
@@ -703,10 +800,13 @@ export default function Home() {
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#fff0f0] text-[#b91c32]">
                 <Phone size={25} />
               </div>
+
               <h3 className="mt-4 font-black">Call Us</h3>
+
               <p className="mt-2 text-sm text-gray-500">
                 0549930719
               </p>
+
               <p className="mt-1 text-sm text-gray-500">
                 0201414428
               </p>
@@ -716,7 +816,9 @@ export default function Home() {
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#fff0f0] text-[#b91c32]">
                 <MapPin size={25} />
               </div>
+
               <h3 className="mt-4 font-black">Find Us</h3>
+
               <p className="mt-2 text-sm text-gray-500">
                 Mawed Apartment, Amamoma
               </p>
@@ -726,7 +828,9 @@ export default function Home() {
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#fff0f0] text-[#b91c32]">
                 <Clock size={25} />
               </div>
+
               <h3 className="mt-4 font-black">Ordering</h3>
+
               <p className="mt-2 text-sm text-gray-500">
                 Contact us for order enquiries.
               </p>
@@ -758,11 +862,14 @@ export default function Home() {
         <div className="container mx-auto grid gap-12 py-16 md:grid-cols-3">
           <div>
             <h2 className="text-3xl font-black">
-              Trudible <span className="text-[#ffd66b]">Cuisine</span>
+              Trudible{" "}
+              <span className="text-[#ffd66b]">Cuisine</span>
             </h2>
+
             <p className="mt-3 text-xs font-semibold uppercase tracking-[3px] text-white/50">
               Our Kitchen To Your Heart
             </p>
+
             <p className="mt-6 max-w-xs text-sm leading-7 text-white/65">
               Bringing you delicious food and a satisfying
               experience, one meal at a time.
@@ -771,29 +878,31 @@ export default function Home() {
 
           <div>
             <h3 className="text-lg font-black">Quick Links</h3>
+
             <div className="mt-5 flex flex-col gap-3 text-sm text-white/65">
-              <a href="#home" className="hover:text-[#ffd66b]">
-                Home
-              </a>
-              <a href="#story" className="hover:text-[#ffd66b]">
-                Our Story
-              </a>
-              <a href="#menu" className="hover:text-[#ffd66b]">
-                Our Menu
-              </a>
-              <a href="#contact" className="hover:text-[#ffd66b]">
-                Contact
-              </a>
+              {navigationLinks.map((item) => (
+                <a
+                  key={item.name}
+                  href={item.link}
+                  className="hover:text-[#ffd66b]"
+                >
+                  {item.name}
+                </a>
+              ))}
             </div>
           </div>
 
           <div>
-            <h3 className="text-lg font-black">Contact Details</h3>
+            <h3 className="text-lg font-black">
+              Contact Details
+            </h3>
+
             <div className="mt-5 flex flex-col gap-4 text-sm text-white/65">
               <p className="flex items-center gap-3">
                 <Phone size={17} />
                 0549930719 / 0201414428
               </p>
+
               <p className="flex items-center gap-3">
                 <MapPin size={17} />
                 Mawed Apartment, Amamoma
@@ -805,11 +914,14 @@ export default function Home() {
         <div className="border-t border-white/10 py-6">
           <div className="container mx-auto flex flex-col items-center justify-between gap-3 text-center text-xs text-white/50 md:flex-row">
             <p>
-              © 2026 Trudible Cuisine. All rights reserved.
+              © {new Date().getFullYear()} Trudible Cuisine. All
+              rights reserved.
             </p>
+
             <p className="flex items-center gap-2">
-              Made with <Heart size={13} className="text-[#ffd66b]" />{" "}
-              for good food lovers.
+              Made with{" "}
+              <Heart size={13} className="text-[#ffd66b]" /> for
+              good food lovers.
             </p>
           </div>
         </div>
@@ -817,6 +929,7 @@ export default function Home() {
         <div className="pointer-events-none absolute bottom-8 right-10 text-5xl opacity-10">
           🍲
         </div>
+
         <div className="pointer-events-none absolute left-10 top-20 text-4xl opacity-10">
           🥑
         </div>
@@ -846,6 +959,7 @@ export default function Home() {
                   <h2 className="text-2xl font-black">
                     Your Order
                   </h2>
+
                   <p className="mt-1 text-sm text-gray-500">
                     {cartCount} item(s) selected
                   </p>
@@ -866,12 +980,15 @@ export default function Home() {
                     <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#fff0f0] text-[#b91c32]">
                       <ShoppingBag size={35} />
                     </div>
+
                     <h3 className="mt-5 text-xl font-black">
                       Your order is empty
                     </h3>
+
                     <p className="mt-2 text-sm text-gray-500">
                       Explore our menu and add something delicious.
                     </p>
+
                     <button
                       onClick={() => setCartOpen(false)}
                       className="mt-6 rounded-full bg-[#b91c32] px-6 py-3 text-sm font-bold text-white"
@@ -896,6 +1013,7 @@ export default function Home() {
                           <h3 className="font-black leading-5">
                             {item.dish.name}
                           </h3>
+
                           <p className="mt-2 text-sm font-bold text-[#b91c32]">
                             GH₵{item.dish.price}
                           </p>
@@ -938,6 +1056,7 @@ export default function Home() {
                     <span className="font-semibold text-gray-500">
                       Order Total
                     </span>
+
                     <span className="text-2xl font-black text-[#b91c32]">
                       GH₵{cartTotal}
                     </span>
