@@ -7,6 +7,8 @@ import {
   AnimatePresence,
   useScroll,
   useTransform,
+  useMotionValue,
+  useSpring,
 } from "framer-motion";
 import {
   ArrowRight,
@@ -106,6 +108,40 @@ export default function Home() {
 
   const { scrollY } = useScroll();
   const heroImageY = useTransform(scrollY, [0, 500], [0, 100]);
+
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const tiltX = useSpring(useTransform(mouseY, [-0.5, 0.5], [14, -14]), {
+    stiffness: 180,
+    damping: 22,
+  });
+  const tiltY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-16, 16]), {
+    stiffness: 180,
+    damping: 22,
+  });
+  const glareX = useSpring(useTransform(mouseX, [-0.5, 0.5], [20, 80]), {
+    stiffness: 180,
+    damping: 22,
+  });
+  const glareY = useSpring(useTransform(mouseY, [-0.5, 0.5], [20, 80]), {
+    stiffness: 180,
+    damping: 22,
+  });
+
+  const handleHeroPointerMove = (
+    e: React.PointerEvent<HTMLDivElement>
+  ) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    mouseX.set(x);
+    mouseY.set(y);
+  };
+
+  const handleHeroPointerLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+  };
 
   const filteredDishes = useMemo(() => {
     if (activeCategory === "All") return dishes;
@@ -407,15 +443,62 @@ export default function Home() {
             </div>
           </motion.div>
 
-          <div className="relative flex min-h-[430px] items-center justify-center">
-            <motion.div
-              className="absolute h-[370px] w-[370px] rounded-full bg-[#ffd66b]/20 blur-3xl md:h-[480px] md:w-[480px]"
-              animate={{ scale: [1, 1.15, 1] }}
-              transition={{ duration: 5, repeat: Infinity }}
-            />
+          <div
+            onPointerMove={handleHeroPointerMove}
+            onPointerLeave={handleHeroPointerLeave}
+            className="relative flex min-h-[460px] items-center justify-center [perspective:1200px]"
+          >
+            {/* Ambient golden aura (subtle, non-breathing) */}
+            <div className="absolute h-[380px] w-[380px] rounded-full bg-[#ffd66b]/20 blur-3xl md:h-[480px] md:w-[480px]" />
 
+            {/* Concentric Orbital Ring 1 - Outer Dashed Track */}
             <motion.div
-              style={{ y: heroImageY }}
+              className="pointer-events-none absolute h-[460px] w-[460px] rounded-full border border-dashed border-white/20"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+            >
+              <div className="absolute -top-1.5 left-1/2 h-3.5 w-3.5 -translate-x-1/2 rounded-full bg-[#ffd66b] shadow-[0_0_14px_#ffd66b]" />
+            </motion.div>
+
+            {/* Concentric Orbital Ring 2 - Inner Golden Ring */}
+            <motion.div
+              className="pointer-events-none absolute h-[530px] w-[530px] rounded-full border border-white/10"
+              animate={{ rotate: -360 }}
+              transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
+            >
+              <div className="absolute -bottom-1.5 right-1/4 h-2.5 w-2.5 rounded-full bg-white/70 shadow-[0_0_10px_white]" />
+            </motion.div>
+
+            {/* Gentle Rising Steam Wisps above the hot dish */}
+            <div className="pointer-events-none absolute -top-10 left-1/2 z-30 flex -translate-x-1/2 gap-6">
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  className="h-16 w-3 rounded-full bg-gradient-to-t from-white/35 via-white/15 to-transparent blur-sm"
+                  animate={{
+                    y: [0, -40, -65],
+                    x: [0, (i - 1) * 10, (i - 1) * 18],
+                    opacity: [0, 0.7, 0],
+                    scaleY: [0.8, 1.3, 1.6],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    delay: i * 0.95,
+                    ease: "easeOut",
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* 3D Tilt Dish Container */}
+            <motion.div
+              style={{
+                y: heroImageY,
+                rotateX: tiltX,
+                rotateY: tiltY,
+                transformStyle: "preserve-3d",
+              }}
               initial={{
                 opacity: 0,
                 y: -650,
@@ -436,45 +519,69 @@ export default function Home() {
               }}
               className="relative z-10 w-full max-w-[530px]"
             >
-              <motion.div
-                animate={{ y: [0, -13, 0], rotate: [0, 1, 0] }}
-                transition={{
-                  duration: 5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="overflow-hidden rounded-[45%] border-[9px] border-white/20 shadow-2xl"
+              {/* Platter Frame with Specular Glare */}
+              <div
+                className="relative overflow-hidden rounded-[45%] border-[10px] border-white/20 shadow-[0_30px_70px_rgba(0,0,0,0.5)] transition-shadow duration-300 hover:shadow-[0_35px_80px_rgba(0,0,0,0.6)]"
+                style={{ transform: "translateZ(30px)" }}
               >
                 <img
                   src={ampesiImage}
                   alt="Ampesi with fish and traditional stew"
-                  className="aspect-square w-full object-cover"
+                  className="aspect-square w-full object-cover transition-transform duration-700 hover:scale-105"
                 />
-              </motion.div>
 
+                {/* Dynamic Glare Reflection */}
+                <motion.div
+                  className="pointer-events-none absolute inset-0 mix-blend-overlay"
+                  style={{
+                    background: useTransform(
+                      [glareX, glareY],
+                      ([x, y]) =>
+                        `radial-gradient(circle at ${x}% ${y}%, rgba(255,255,255,0.45) 0%, transparent 60%)`
+                    ),
+                  }}
+                />
+              </div>
+
+              {/* Floating Avocado Garnish Badge with 3D Depth */}
               <motion.div
+                style={{ transform: "translateZ(65px)" }}
                 animate={{
-                  rotate: [0, 10, -10, 0],
-                  y: [0, -8, 0],
+                  y: [0, -6, 0],
+                  rotate: [0, 6, 0],
                 }}
-                transition={{ duration: 5, repeat: Infinity }}
-                className="absolute -right-3 top-12 flex h-20 w-20 items-center justify-center rounded-full bg-white text-4xl shadow-xl md:-right-7"
+                transition={{
+                  duration: 4.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="absolute -right-3 top-12 flex h-20 w-20 items-center justify-center rounded-full bg-white text-4xl shadow-2xl md:-right-7"
               >
                 🥑
               </motion.div>
 
+              {/* Floating Yam Garnish Badge with 3D Depth */}
               <motion.div
+                style={{ transform: "translateZ(75px)" }}
                 animate={{
-                  rotate: [0, -12, 12, 0],
-                  y: [0, 8, 0],
+                  y: [0, 6, 0],
+                  rotate: [0, -6, 0],
                 }}
-                transition={{ duration: 4, repeat: Infinity }}
-                className="absolute -bottom-3 left-0 flex h-20 w-20 items-center justify-center rounded-full bg-[#ffd66b] text-4xl shadow-xl"
+                transition={{
+                  duration: 4.8,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="absolute -bottom-3 left-0 flex h-20 w-20 items-center justify-center rounded-full bg-[#ffd66b] text-4xl shadow-2xl"
               >
                 🍠
               </motion.div>
 
-              <div className="absolute -bottom-5 right-8 rounded-2xl bg-white px-5 py-3 text-[#242020] shadow-xl">
+              {/* Deliciousness Card with 3D Depth */}
+              <div
+                style={{ transform: "translateZ(85px)" }}
+                className="absolute -bottom-5 right-8 rounded-2xl bg-white px-5 py-3 text-[#242020] shadow-2xl transition-transform duration-300 hover:scale-105"
+              >
                 <p className="text-xs font-bold uppercase tracking-wider text-[#b91c32]">
                   Deliciousness
                 </p>
